@@ -474,7 +474,7 @@ def _beam_search_sample(
 
 def _guidance_sample(
     selected_seq_groups: List[Tuple[List[int], SamplingParams]],
-    logprobs: torch.Tensor,
+    logits: torch.Tensor,
 ) -> List[Tuple[List[int], List[int]]]:
     sample_idx = 0
     results = []
@@ -484,11 +484,10 @@ def _guidance_sample(
         assert num_parent_seqs == 1, (
             "Guidance sampling should have only one seq.")
         parent_ids = list(range(num_parent_seqs))
-        logits = logprobs[sample_idx]
         guidance_controller = sampling_params.guidance_controller
         guidance_controller.mark_new_token()
-        #torch.cuda.synchronize()
-        #t = time.time()
+        torch.cuda.synchronize()
+        t = time.time()
         search_type = "logits"
         valid_token_ids = None
         if len(guidance_controller.pre_decoded_token_ids) > 0:
@@ -500,26 +499,27 @@ def _guidance_sample(
                 token_id = guidance_controller.pre_decoded_token_ids.pop(0)
                 search_type = "do_pre_decoded"
             else:
-                token_id, valid_token_ids = guidance_controller.max_logit_token_id(logits, use_fast = True)
-        #torch.cuda.synchronize()
-        #t = time.time()-t
-        #token = guidance_controller.tokens[token_id]
-        #try: token = token.decode(encoding = "utf-8")
-        #except: pass
-        #if isinstance(valid_token_ids, list):
-        #    valid_tokens = {}
-        #    for valid_token_id in valid_token_ids:
-        #        valid_token = guidance_controller.tokens[valid_token_id]
-        #        try: valid_token = valid_token.decode(encoding = "utf-8")
-        #        except: pass
-        #        valid_tokens[valid_token] = logits[valid_token_id].item()
-        #else: valid_tokens = None
-        #print(f"search time ({search_type:>15}): {t*1000:>10.3f}ms\t{token}\t{valid_tokens}".replace("\n", "\\n"))
+                token_id, valid_token_ids = guidance_controller.next_token_id(
+                    logits[sample_idx], sampling_params.temperature, use_fast = True)
+        torch.cuda.synchronize()
+        t = time.time()-t
+        token = guidance_controller.tokens[token_id]
+        try: token = token.decode(encoding = "utf-8")
+        except: pass
+        if isinstance(valid_token_ids, list):
+            valid_tokens = []
+            for valid_token_id in valid_token_ids:
+                valid_token = guidance_controller.tokens[valid_token_id]
+                try: valid_token = valid_token.decode(encoding = "utf-8")
+                except: pass
+                valid_tokens.append(valid_token)
+        else: valid_tokens = None
+        print(f"search time ({search_type:>15}): {t*1000:>10.3f}ms\t{token}\t{len(valid_tokens) if valid_tokens else None}".replace("\n", "\\n"))
         guidance_controller.consume_token_id(token_id)
         next_token_ids = [token_id]
         results.append((next_token_ids, parent_ids))
         sample_idx += num_parent_seqs
-    assert sample_idx == logprobs.size(0)
+    assert sample_idx == logits.size(0)
     return results
 
 
@@ -557,8 +557,8 @@ def _sample(
                                                  sampling_metadata.seq_data,
                                                  category_logprobs)
         elif sampling_type == SamplingType.GUIDANCE:
-            category_logprobs = logprobs[sample_indices]
-            sample_results = _guidance_sample(seq_groups, category_logprobs)
+            category_logits = logprobs[sample_indices]
+            sample_results = _guidance_sample(seq_groups, category_logits)
         else:
             raise ValueError(f"Unsupported sampling type: {sampling_type}")
         sample_results_dict.update(zip(seq_group_ids, sample_results))

@@ -297,20 +297,57 @@ class LLMEngine:
         self.scheduler.add_seq_group(seq_group)
 
     def add_guidance_controller(self, sampling_params):
+
+        forbidden_token_ids = set()
+        ftokens = sampling_params.guidance_forbidden_tokens
+        if ftokens is not None:
+            if isinstance(ftokens, str):
+                sampling_params.guidance_forbidden_tokens = [ftokens]
+        else: sampling_params.guidance_forbidden_tokens = []
+        assert isinstance(sampling_params.guidance_forbidden_tokens, list)
+        for ftoken in sampling_params.guidance_forbidden_tokens:
+            ftoken_id = self.tokenizer.encode(ftoken)
+            assert len(ftoken_id) == 1, f"'{ftoken}' is not a token!"
+            ftoken_id = ftoken_id[0]
+            forbidden_token_ids.add(ftoken_id)
+        ftoken_ids = sampling_params.guidance_forbidden_token_ids
+        if ftoken_ids is not None:
+            if isinstance(ftoken_ids, int):
+                sampling_params.guidance_forbidden_token_ids = [ftoken_ids]
+        else: sampling_params.guidance_forbidden_token_ids = []
+        for ftoken_id in sampling_params.guidance_forbidden_token_ids:
+            assert isinstance(ftoken_id, int), f"'{ftoken_id}' is not a token id!"
+            forbidden_token_ids.add(ftoken_id)
+        
+        spliter = sampling_params.guidance_json_spliter
+        if sampling_params.guidance_json_spliter is None:
+            spliter = ""
+        else:
+            try:
+                spliter = GuidanceSpliter[spliter.upper()].value
+            except:
+                logger.warn(f"Unrecognized guidance_json_spliter: {spliter}, using None")
+                spliter = ""
+        
         if sampling_params.guidance_grammar is not None:
             sampling_params.guidance_controller = GuidanceController(
                 self.byte_tokenizer, 
-                sampling_params.guidance_grammar)
+                sampling_params.guidance_grammar, 
+                forbidden_token_ids)
             return sampling_params
         if sampling_params.guidance_json_schema is not None:
-            grammar = convert_json_schema_to_grammar(sampling_params.guidance_json_schema)
+            grammar = convert_json_schema_to_grammar(
+                sampling_params.guidance_json_schema, SPLITER = spliter)
             sampling_params.guidance_grammar = grammar
-            sampling_params.guidance_controller = GuidanceController(self.byte_tokenizer, grammar)
+            sampling_params.guidance_controller = GuidanceController(
+                self.byte_tokenizer, grammar, forbidden_token_ids)
             return sampling_params
         if sampling_params.guidance_json_case is not None:
-            grammar = convert_json_case_to_grammar(sampling_params.guidance_json_case)
+            grammar = convert_json_case_to_grammar(
+                sampling_params.guidance_json_case, SPLITER = spliter)
             sampling_params.guidance_grammar = grammar
-            sampling_params.guidance_controller = GuidanceController(self.byte_tokenizer, grammar)
+            sampling_params.guidance_controller = GuidanceController(
+                self.byte_tokenizer, grammar, forbidden_token_ids)
             return sampling_params
         return sampling_params
 

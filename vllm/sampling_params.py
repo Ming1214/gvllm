@@ -89,6 +89,9 @@ class SamplingParams:
 
         guidance_json_case: ...
         guidance_json_schema: ...
+        guidance_json_spliter: ...
+        guidance_forbidden_tokens: ...
+        guidance_forbidden_token_ids: ...
         guidance_json_grammar: ...
         guidance_controller: ...
     """
@@ -119,6 +122,9 @@ class SamplingParams:
 
         guidance_json_case = None, 
         guidance_json_schema = None, 
+        guidance_json_spliter = None, 
+        guidance_forbidden_tokens = None, 
+        guidance_forbidden_token_ids = None, 
         guidance_grammar = None, 
         guidance_controller = None, 
     ) -> None:
@@ -151,21 +157,33 @@ class SamplingParams:
         self.skip_special_tokens = skip_special_tokens
         self.spaces_between_special_tokens = spaces_between_special_tokens
         self.logits_processors = logits_processors
-        self._verify_args()
-        if self.use_beam_search:
-            self._verify_beam_search()
-        else:
-            self._verify_non_beam_search()
-            if self.temperature < _SAMPLING_EPS:
-                # Zero temperature means greedy sampling.
-                self.top_p = 1.0
-                self.top_k = -1
-                self._verify_greedy_sampling()
 
         self.guidance_json_case = guidance_json_case
         self.guidance_json_schema = guidance_json_schema
+        self.guidance_json_spliter = guidance_json_spliter
+        self.guidance_forbidden_tokens = guidance_forbidden_tokens
+        self.guidance_forbidden_token_ids = guidance_forbidden_token_ids
         self.guidance_grammar = guidance_grammar
         self.guidance_controller = guidance_controller
+        use_guidance = guidance_json_case or guidance_json_schema or guidance_grammar
+        use_guidance = use_guidance is not None
+
+        self._verify_args()
+        if use_guidance:
+            self.top_p = 1.0
+            self.top_k = -1
+            self.use_beam_search = False
+            self._verify_guidance_sampling()
+        else:
+            if self.use_beam_search:
+                self._verify_beam_search()
+            else:
+                self._verify_non_beam_search()
+                if self.temperature < _SAMPLING_EPS:
+                    # Zero temperature means greedy sampling.
+                    self.top_p = 1.0
+                    self.top_k = -1
+                    self._verify_greedy_sampling()
 
     def _verify_args(self) -> None:
         if self.n < 1:
@@ -231,6 +249,11 @@ class SamplingParams:
     def _verify_greedy_sampling(self) -> None:
         if self.best_of > 1:
             raise ValueError("best_of must be 1 when using greedy sampling."
+                             f"Got {self.best_of}.")
+
+    def _verify_guidance_sampling(self) -> None:
+        if self.best_of > 1:
+            raise ValueError("best_of must be 1 when using guidance sampling."
                              f"Got {self.best_of}.")
 
     @cached_property

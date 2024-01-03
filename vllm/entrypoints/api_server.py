@@ -35,6 +35,10 @@ async def generate(request: Request) -> Response:
     request_dict = await request.json()
     prompt = request_dict.pop("prompt")
     stream = request_dict.pop("stream", False)
+    use_chat = request_dict.pop("chat", False)
+    meta_info = request_dict.pop("meta", "You are an AI assistant. Your response should be helpful, harmless and honest.")
+    if use_chat:
+        prompt = f"<|meta_start|> {meta_info} <|meta_end|>\n <|start|> <|human|> {prompt} <|end|>\n <|assistant|> "
     sampling_params = SamplingParams(**request_dict)
     request_id = random_uuid()
 

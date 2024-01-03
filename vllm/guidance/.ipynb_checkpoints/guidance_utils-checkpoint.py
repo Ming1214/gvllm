@@ -45,7 +45,7 @@ def convert_json_case_to_grammar(case, SPLITER = ""):
     raise TypeError(f"Unsupported Type: {type(case)}")
 
 
-def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = ""):
+def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = "", temperature = -1):
     
     if definitions is None:
         definitions = schema.get("definitions", None)
@@ -53,35 +53,37 @@ def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = ""):
     if ref is not None:
         ref = ref.split("/")[-1]
         assert definitions is not None and ref in definitions, Exception(f"Can't find $ref: {ref} from {definition}!")
-        return convert_json_schema_to_grammar(definitions[ref], definitions, SPLITER)
+        return convert_json_schema_to_grammar(definitions[ref], definitions, SPLITER, temperature = temperature)
     
     type = schema.get("type", None)
     if type is None:
         if "enum" in schema: type = "enumeration"
         else: raise TypeError(f"Unrecognized type: {schema}")
+
+    temperature = schema.get("temperature", temperature)
     
     if type == "boolean":
         return guidance.select(["true", "false"])
         
     elif type == "integer":
-        return guidance.gen(regex = "[\-\+]?\d+")
+        return guidance.gen(regex = "[\-\+]?\d+", temperature = temperature)
         
     elif type == "number":
-        return guidance.gen(regex = "[\-\+]?\d+(\.\d*)?")
+        return guidance.gen(regex = "[\-\+]?\d+(\.\d*)?", temperature = temperature)
         
     elif type == "enumeration":
         return guidance.select(schema["enum"])
         
     elif type == "string": # 支持正则表达式(constr)
         if "pattern" in schema:
-            return '"' + guidance.gen(regex = schema["pattern"], stop = '"')
-        return '"' + guidance.gen(stop = '"')
+            return '"' + guidance.gen(regex = schema["pattern"], stop = '"', temperature = temperature)
+        return '"' + guidance.gen(stop = '"', temperature = temperature)
         
     elif type == "array": # 支持设定数目限制(conlist)
         min_items = max(schema.get("min_items", 0), 0)
         max_items = schema.get("max_items", -1)
         if min_items == max_items == 0: return "[]" # 一般不存在这种情况
-        item_grammar = convert_json_schema_to_grammar(schema["items"], definitions, SPLITER)
+        item_grammar = convert_json_schema_to_grammar(schema["items"], definitions, SPLITER, temperature = temperature)
         grammar = "["
         for i in range(min_items):
             grammar += SPLITER + item_grammar
@@ -112,7 +114,7 @@ def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = ""):
         grammar = "{" + SPLITER
         for i, key in enumerate(properties):
             value = properties[key]
-            value_grammar = convert_json_schema_to_grammar(value, definitions, SPLITER)
+            value_grammar = convert_json_schema_to_grammar(value, definitions, SPLITER, temperature = temperature)
             grammar += f'"{key}":' + SPLITER + value_grammar
             if i < len(properties)-1:
                 grammar += "," + SPLITER

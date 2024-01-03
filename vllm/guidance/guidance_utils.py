@@ -55,10 +55,12 @@ def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = "", tem
         assert definitions is not None and ref in definitions, Exception(f"Can't find $ref: {ref} from {definition}!")
         return convert_json_schema_to_grammar(definitions[ref], definitions, SPLITER, temperature = temperature)
     
-    type = schema.get("type", None)
+    if "enum" in schema:
+        type = "enumeration"
+    else:
+        type = schema.get("type", None)
     if type is None:
-        if "enum" in schema: type = "enumeration"
-        else: raise TypeError(f"Unrecognized type: {schema}")
+        raise TypeError(f"Unrecognized type: {schema}")
 
     temperature = schema.get("temperature", temperature)
     

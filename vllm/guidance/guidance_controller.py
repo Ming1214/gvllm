@@ -204,11 +204,11 @@ class GuidanceController:
         if len(valid_next_bytes) == 0:
             return self.eos_token_id, []
         if self.any in valid_next_bytes:
-            return self.random_for_unconstrained_gen(probs,  use_fast), None
+            return self.random_for_unconstrained_gen(probs, use_fast), None
         valid_token_ids = self.valid_token_ids(use_trie = True)
         valid_token_ids = list(filter(lambda token_id: token_id not in self.forbidden_token_ids, valid_token_ids))
         if len(valid_token_ids) > 0:
-            new_probs = probs[valid_token_ids]
+            new_probs = probs[valid_token_ids]+1e-32
             new_probs /= new_probs.sum()
             token_id = torch.multinomial(new_probs, 1).item()
             token_id = valid_token_ids[token_id]

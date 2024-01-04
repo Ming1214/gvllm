@@ -3,12 +3,12 @@
 ## 使用 Guidance，只需要在提交请求时增加如下字段（优先级从高到低，选择其中一个即可）：
 
 
-1. guidance_json_schema: 以 json schema 为输出模板
+### guidance_json_schema: 以 json schema 为输出模板
 
 schema 支持类型：boolean(bool) integer(int) number(float) string(str, pydantic.constr 支持正则) enumeration(enum.Enum) array(list, pydantic.conlist 支持数量控制) object(pydantic.BaseModel)
 
 
-2. guidance_json_case: 以某个具体的 json 数据样本作为输出模板
+### guidance_json_case: 以某个具体的 json 数据样本作为输出模板
 
 case 支持类型：bool int float str list dict
 

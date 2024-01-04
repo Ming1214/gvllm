@@ -1,6 +1,6 @@
 # gvllm = guidance + vllm
 
-##使用 Guidance，只需要在提交请求时增加如下字段（优先级从高到低，选择其中一个即可）：
+## 使用 Guidance，只需要在提交请求时增加如下字段（优先级从高到低，选择其中一个即可）：
 
 
 1. guidance_json_schema: 以 json schema 为输出模板
@@ -13,7 +13,7 @@ schema 支持类型：boolean(bool) integer(int) number(float) string(str, pydan
 case 支持类型：bool int float str list dict
 
 
-##在使用上面 json 控制的时候，还可以选择 json 元素之间的间隔符（由 guidance_json_spliter 字段控制，默认为 None）：
+## 在使用上面 json 控制的时候，还可以选择 json 元素之间的间隔符（由 guidance_json_spliter 字段控制，默认为 None）：
 
 ```python
 class GuidanceSpliter(Enum):
@@ -36,10 +36,10 @@ class GuidanceSpliter(Enum):
 ```
 
 
-##在 Guidance 控制输出时，可以设置 guidance_forbidden_tokens 或 guidance_forbidden_token_ids 避免相应 token 的输出
+## 在 Guidance 控制输出时，可以设置 guidance_forbidden_tokens 或 guidance_forbidden_token_ids 避免相应 token 的输出
 
 
-##随机采样：
+## 随机采样：
 
 1. 可以直接设置 sampling_params 中的 temperature 控制全局随机性
 2. 可以在 guidance_json_schema 字段中对不同的内容分别设置不同的温度参数

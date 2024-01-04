@@ -5,13 +5,79 @@
 
 ### guidance_json_schema: 以 json schema 为输出模板
 
-schema 支持类型：boolean(bool) integer(int) number(float) string(str, pydantic.constr 支持正则) enumeration(enum.Enum) array(list, pydantic.conlist 支持数量控制) object(pydantic.BaseModel)
+schema 支持类型：
+
+1. boolean(bool) 
+2. integer(int) 
+3. number(float) 
+4. string(str, pydantic.constr 支持正则) 
+5. enumeration(enum.Enum) 
+6. array(list, pydantic.conlist 支持数量控制) 
+7. object(pydantic.BaseModel)
+
+示例：
+
+```json
+{
+    "type": "object", 
+    "properties": {
+        "姓名": {
+            "type": "string"
+        }, 
+        "朝代": {
+            "enum": ["唐", "宋", "元", "明", "清"]
+        }, 
+        "职业": {
+           "type": "string" 
+        }, 
+        "代表作品": {
+            "type": "array", 
+            "items": {
+                "type": "string"
+            }
+        }, 
+        "事件年表":{
+            "$ref": "#/definitions/events"
+        }
+    }, 
+    "definitions": {
+        "events": {
+            "type": "object", 
+            "properties": {
+                "出生": {
+                    "type": "integer"
+                }, 
+                "死亡": {
+                    "type": "interger"
+                }
+            }
+        }
+    }
+}
+```
 
 
 ### guidance_json_case: 以某个具体的 json 数据样本作为输出模板
 
 case 支持类型：bool int float str list dict
 
+示例：
+
+```json
+{
+    "姓名": "李白", 
+    "朝代": "唐", 
+    "职业": "诗人", 
+    "代表作品": [
+        "《将进酒》", 
+        "《蜀道难》"
+    ], 
+    "事件年表": {
+        "出生": 701, 
+        "死亡": 762
+    }
+}
+```
 
 ## 在使用上面 json 控制的时候，还可以选择 json 元素之间的间隔符（由 guidance_json_spliter 字段控制，默认为 None）：
 

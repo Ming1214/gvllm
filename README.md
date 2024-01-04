@@ -79,6 +79,7 @@ case 支持类型：bool int float str list dict
 }
 ```
 
+
 ## 在使用上面 json 控制的时候，还可以选择 json 元素之间的间隔符（由 guidance_json_spliter 字段控制，默认为 None）：
 
 ```python
@@ -102,12 +103,12 @@ class GuidanceSpliter(Enum):
 ```
 
 
-## 在 Guidance 控制输出时，可以设置 guidance_forbidden_tokens 或 guidance_forbidden_token_ids 避免相应 token 的输出
-
-
 ## 随机采样：
 
 1. 可以直接设置 sampling_params 中的 temperature 控制全局随机性
 2. 可以在 guidance_json_schema 字段中对不同的内容分别设置不同的温度参数
 3. 当且仅当 sampling_params 中的温度设置为 0 且 guidance_json_schema 中温度默认或设置为 0 的情况下，采用 greedy sampling
 4. guidance_json_schema 中的温度具有优先控制权
+
+
+## 在 Guidance 控制输出时，可以设置 guidance_forbidden_tokens 或 guidance_forbidden_token_ids 避免相应 token 的输出

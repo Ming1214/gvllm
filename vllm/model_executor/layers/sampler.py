@@ -506,15 +506,7 @@ def _guidance_sample(
         token = guidance_controller.tokens[token_id]
         try: token = token.decode(encoding = "utf-8")
         except: pass
-        if isinstance(valid_token_ids, list):
-            valid_tokens = []
-            for valid_token_id in valid_token_ids:
-                valid_token = guidance_controller.tokens[valid_token_id]
-                try: valid_token = valid_token.decode(encoding = "utf-8")
-                except: pass
-                valid_tokens.append(valid_token)
-        else: valid_tokens = None
-        print(f"search time ({search_type:>15}): {t*1000:>10.3f}ms\t{token}\t{len(valid_tokens) if valid_tokens else None}".replace("\n", "\\n"))
+        print(f"search time ({search_type:>15}): {t*1000:>10.3f}ms\t{token}\t{len(valid_token_ids) if valid_token_ids else None}".replace("\n", "\\n"))
         guidance_controller.consume_token_id(token_id)
         next_token_ids = [token_id]
         results.append((next_token_ids, parent_ids))

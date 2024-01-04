@@ -19,8 +19,8 @@ from vllm.transformers_utils.tokenizer import (detokenize_incrementally,
                                                get_tokenizer)
 from vllm.utils import Counter
 
-from vllm.guidance import ByteTokenizer, GuidanceController
-from vllm.guidance.guidance_utils import *
+from vllm.guidance_patches import ByteTokenizer, GuidanceController
+from vllm.guidance_patches.guidance_utils import *
 
 
 if ray:

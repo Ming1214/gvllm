@@ -2,7 +2,7 @@ import argparse
 import json
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 import uvicorn
 
@@ -23,6 +23,16 @@ async def health() -> Response:
     return Response(status_code=200)
 
 
+@app.post("/tokenize_text_count")
+async def tokenize_count(req: Request) -> Response:
+    """Count number of tokens."""
+    req_dict = await req.json()
+    text = req_dict.pop("text", "")
+    tokens = engine.engine.tokenizer.tokenize(text)
+    ret = {"count": len(tokens)}
+    return JSONResponse(ret)
+
+
 @app.post("/generate")
 async def generate(request: Request) -> Response:
     """Generate completion for the request.
@@ -35,10 +45,12 @@ async def generate(request: Request) -> Response:
     request_dict = await request.json()
     prompt = request_dict.pop("prompt")
     stream = request_dict.pop("stream", False)
+
     use_chat = request_dict.pop("chat", False)
     meta_info = request_dict.pop("meta", "You are an AI assistant. Your response should be helpful, harmless and honest.")
     if use_chat:
         prompt = f"<|meta_start|> {meta_info} <|meta_end|>\n <|start|> <|human|> {prompt} <|end|>\n <|assistant|> "
+    
     sampling_params = SamplingParams(**request_dict)
     request_id = random_uuid()
 
@@ -46,30 +58,53 @@ async def generate(request: Request) -> Response:
 
     # Streaming case
     async def stream_results() -> AsyncGenerator[bytes, None]:
+        prev_text = ""
         async for request_output in results_generator:
-            prompt = request_output.prompt
-            text_outputs = [
-                prompt + output.text for output in request_output.outputs
-            ]
-            ret = {"text": text_outputs}
-            yield (json.dumps(ret) + "\0").encode("utf-8")
+            #prompt = request_output.prompt
+            #text_outputs = [
+            #    prompt + output.text for output in request_output.outputs
+            #]
+            #ret = {"text": text_outputs}
+            #yield (json.dumps(ret) + "\0").encode("utf-8")
+            output = request_output.outputs[0]
+            token_id = output.token_ids[-1]
+            text = output.text
+            token = text[len(prev_text): ]
+            prev_text = text
+            resp = {
+                "token": {
+                    "id": token_id, 
+                    "text": token, 
+                    "logprob": None, 
+                    "special": False
+                }
+            }
+            resp["generated_text"] = text if request_output.finished else None
+            yield f"data:{json.dumps(resp, ensure_ascii=False)}\n\n"
+
+    async def abort_request() -> None:
+        await engine.abort(request_id)
 
     if stream:
-        return StreamingResponse(stream_results())
+        background_tasks = BackgroundTasks()
+        background_tasks.add_task(abort_request)
+        return StreamingResponse(stream_results(), background=background_tasks, headers={"Content-Type": "text/event-stream"})
 
     # Non-streaming case
     final_output = None
     async for request_output in results_generator:
-        if await request.is_disconnected():
-            # Abort the request if the client disconnects.
-            await engine.abort(request_id)
-            return Response(status_code=499)
+        #if await request.is_disconnected():
+        #    # Abort the request if the client disconnects.
+        #    await engine.abort(request_id)
+        #    return Response(status_code=499)
         final_output = request_output
 
     assert final_output is not None
-    prompt = final_output.prompt
-    text_outputs = [prompt + output.text for output in final_output.outputs]
-    ret = {"text": text_outputs}
+    #prompt = final_output.prompt
+    #text_outputs = [prompt + output.text for output in final_output.outputs]
+    #ret = {"text": text_outputs}
+    texts = [output.text for output in request_output.outputs]
+    ret = {"generated_text": texts if len(texts) > 1 else texts[0]}
     return JSONResponse(ret)
 
 

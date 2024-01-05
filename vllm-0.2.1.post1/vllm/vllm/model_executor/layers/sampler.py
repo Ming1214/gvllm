@@ -11,6 +11,8 @@ from vllm.sampling_params import SamplingParams, SamplingType
 from vllm.sequence import (PromptLogprobs, SampleLogprobs, SamplerOutput,
                            SequenceData, SequenceGroupOutputs, SequenceOutputs)
 
+import time
+
 _SAMPLING_EPS = 1e-5
 
 

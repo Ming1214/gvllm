@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 from tqdm import tqdm
 from transformers import PreTrainedTokenizer, PreTrainedTokenizerFast
 
+from vllm.guidance import ByteTokenizer
 from vllm.engine.arg_utils import EngineArgs
 from vllm.engine.llm_engine import LLMEngine
 from vllm.outputs import RequestOutput
@@ -97,11 +98,16 @@ class LLM:
             self) -> Union[PreTrainedTokenizer, PreTrainedTokenizerFast]:
         return self.llm_engine.tokenizer
 
+    def get_byte_tokenizer(
+            self) -> ByteTokenizer:
+        return self.llm_engine.byte_tokenizer
+
     def set_tokenizer(
         self,
         tokenizer: Union[PreTrainedTokenizer, PreTrainedTokenizerFast],
     ) -> None:
         self.llm_engine.tokenizer = tokenizer
+        self.llm_engine.byte_tokenizer = ByteTokenizer(tokenizer)
 
     def generate(
         self,

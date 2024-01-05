@@ -287,4 +287,8 @@ class SamplingParams:
                 f"prompt_logprobs={self.prompt_logprobs}, "
                 f"skip_special_tokens={self.skip_special_tokens}, "
                 "spaces_between_special_tokens="
-                f"{self.spaces_between_special_tokens})")
+                f"{self.spaces_between_special_tokens}, "
+                "guidance_json_case="
+                f"{self.guidance_json_case}, "
+                "guidance_json_schema="
+                f"{self.guidance_json_schema})")

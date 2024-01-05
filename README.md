@@ -1,5 +1,18 @@
 # gvllm = guidance + vllm
 
+## 修改要点
+
+1. sampling_params.py: 添加 guidance 控制相应字段
+
+2. engine/llm_engine.py: 修改 __init__、add_request 方法，增加 add_guidance_controller 方法
+
+3. entrypoints/llm.py: 修改 set_tokenizer 方法，增加 get_byte_tokenizer 方法
+
+4. model_executor/layers/sampler.py: 修改 _sample 方法，增加 _guidance_sample 方法
+
+5. 添加 guidance_patches 包，并修改 __init__.py 
+
+
 ## 使用 Guidance，只需要在提交请求时增加如下字段（优先级从高到低，选择其中一个即可）：
 
 
@@ -8,11 +21,17 @@
 schema 支持类型：
 
 1. boolean(bool) 
+
 2. integer(int) 
+
 3. number(float) 
+
 4. string(str, pydantic.constr 支持正则) 
+
 5. enumeration(enum.Enum) 
+
 6. array(list, pydantic.conlist 支持数量控制) 
+
 7. object(pydantic.BaseModel)
 
 示例：
@@ -106,8 +125,11 @@ class GuidanceSpliter(Enum):
 ## 随机采样：
 
 1. 可以直接设置 sampling_params 中的 temperature 控制全局随机性
+
 2. 可以在 guidance_json_schema 字段中对不同的内容分别设置不同的温度参数
+
 3. 当且仅当 sampling_params 中的温度设置为 0 且 guidance_json_schema 中温度默认或设置为 0 的情况下，采用 greedy sampling
+
 4. guidance_json_schema 中的温度具有优先控制权
 
 

@@ -4,13 +4,13 @@
 
 1. sampling_params.py: 添加 guidance 控制相应字段
 
-2. engine/llm_engine.py: 修改 __init__、add_request 方法，增加 add_guidance_controller 方法
+2. engine/llm_engine.py: 修改 \_\_init\_\_、add_request 方法，增加 add_guidance_controller 方法
 
 3. entrypoints/llm.py: 修改 set_tokenizer 方法，增加 get_byte_tokenizer 方法
 
 4. model_executor/layers/sampler.py: 修改 _sample 方法，增加 _guidance_sample 方法
 
-5. 添加 guidance_patches 包，并修改 __init__.py 
+5. 添加 guidance_patches 包，并修改 \_\_init\_\_.py 
 
 
 ## 使用 Guidance，只需要在提交请求时增加如下字段（优先级从高到低，选择其中一个即可）：

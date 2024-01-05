@@ -67,7 +67,7 @@ schema 支持类型：
                     "type": "integer"
                 }, 
                 "死亡": {
-                    "type": "interger"
+                    "type": "integer"
                 }
             }
         }

@@ -57,6 +57,9 @@ def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = "", tem
     
     if "enum" in schema:
         type = "enumeration"
+        type_enum = schema.get("type", None)
+        if type_enum is None and isinstance(schema["enum"][0], str):
+            type_enum = "string"
     else:
         type = schema.get("type", None)
     if type is None:
@@ -73,13 +76,15 @@ def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = "", tem
     elif type == "number":
         return guidance.gen(regex = "[\-\+]?\d+(\.\d*)?", temperature = temperature)
         
-    elif type == "enumeration":
-        return guidance.select(schema["enum"])
-        
     elif type == "string": # 支持正则表达式(constr)
         if "pattern" in schema:
             return '"' + guidance.gen(regex = schema["pattern"], stop = '"', temperature = temperature)
         return '"' + guidance.gen(stop = '"', temperature = temperature)
+        
+    elif type == "enumeration":
+        if type_enum == "string":
+            return '"' + guidance.select([x.strip("'\"")]) '"'
+        return guidance.select(schema["enum"])
         
     elif type == "array": # 支持设定数目限制(conlist)
         min_items = max(schema.get("min_items", 0), 0)

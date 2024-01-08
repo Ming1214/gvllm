@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from tqdm import tqdm
 from transformers import PreTrainedTokenizer, PreTrainedTokenizerFast
 
-from vllm.guidance import ByteTokenizer
+from vllm.guidance_patches import ByteTokenizer
 from vllm.engine.arg_utils import EngineArgs
 from vllm.engine.llm_engine import LLMEngine
 from vllm.outputs import RequestOutput

@@ -9,7 +9,7 @@ from vllm.outputs import CompletionOutput, RequestOutput
 from vllm.sampling_params import SamplingParams
 from vllm.guidance_patches import ByteTokenizer, GuidanceController
 
-__version__ = "0.2.1.post1"
+__version__ = "0.2.1.post1.guidance"
 
 __all__ = [
     "LLM",

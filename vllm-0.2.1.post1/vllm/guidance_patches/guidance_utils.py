@@ -83,7 +83,7 @@ def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = "", tem
         
     elif type == "enumeration":
         if type_enum == "string":
-            return '"' + guidance.select([x.strip("'\"")]) '"'
+            return '"' + guidance.select([x.strip("'\"")]) + '"'
         return guidance.select(schema["enum"])
         
     elif type == "array": # 支持设定数目限制(conlist)

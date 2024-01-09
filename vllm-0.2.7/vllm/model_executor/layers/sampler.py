@@ -12,6 +12,9 @@ from vllm.sequence import (PromptLogprobs, SampleLogprobs, SamplerOutput,
                            SequenceData, SequenceGroupOutput, SequenceOutput)
 
 import time
+from vllm.logger import init_logger
+
+logger = init_logger(__name__)
 
 
 class Sampler(nn.Module):
@@ -369,7 +372,7 @@ def _guidance_sample(
         token = guidance_controller.tokens[token_id]
         try: token = token.decode(encoding = "utf-8")
         except: pass
-        print(f"search time ({search_type:>15}): {t*1000:>10.3f}ms\t{token}\t{len(valid_token_ids) if valid_token_ids else None}".replace("\n", "\\n"))
+        logger.debug(f"search time ({search_type:>15}): {t*1000:>10.3f}ms\t{token}\t{len(valid_token_ids) if valid_token_ids else None}".replace("\n", "\\n"))
         guidance_controller.consume_token_id(token_id)
         next_token_ids = [token_id]
         results.append((next_token_ids, parent_ids))

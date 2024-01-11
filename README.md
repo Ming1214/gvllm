@@ -101,24 +101,26 @@ case 支持类型：bool int float str list dict
 
 ### guidance_json_spliter: 在使用上面 json 控制的时候，还可以选择 json 元素之间的间隔符
 
+传入字符串，例如：guidance_json_spliter = "none_or_space_or_linefeed" (不区分大小写)
+
 ```python
 class GuidanceSpliter(Enum):
     
-    NONE: 0 = ""
-    SPACE: 1 = " "
-    LINEFEED: 2 = "\n"
+    NONE: = ""
+    SPACE: = " "
+    LINEFEED: = "\n"
     
-    NONE_OR_SPACE: 3 = guidance.select(["", " "])
-    NONE_OR_LINEFEED: 4 = guidance.select(["", "\n"])
-    NONE_OR_SPACE_OR_LINEFEED: 5 = guidance.select(["", " ", "\n"])
+    NONE_OR_SPACE: = guidance.select(["", " "])
+    NONE_OR_LINEFEED: = guidance.select(["", "\n"])
+    NONE_OR_SPACE_OR_LINEFEED: = guidance.select(["", " ", "\n"])
     
-    ZERO_OR_MORE_SPACE: 6 = guidance.zero_or_more(" ")
-    ZERO_OR_MORE_LINEFEED: 7 = guidance.zero_or_more("\n")
-    ZERO_OR_MORE_SPACE_OR_LINEFEED: 8 = guidance.zero_or_more(guidance.select([" ", "\n"]))
+    ZERO_OR_MORE_SPACE: = guidance.zero_or_more(" ")
+    ZERO_OR_MORE_LINEFEED: = guidance.zero_or_more("\n")
+    ZERO_OR_MORE_SPACE_OR_LINEFEED: = guidance.zero_or_more(guidance.select([" ", "\n"]))
     
-    ONE_OR_MORE_SPACE: 9 = guidance.one_or_more(" ")
-    ONE_OR_MORE_LINEFEED: 10 = guidance.one_or_more("\n")
-    ONE_OR_MORE_SPACE_OR_LINEFEED: 11 = guidance.one_or_more(guidance.select([" ", "\n"]))
+    ONE_OR_MORE_SPACE: = guidance.one_or_more(" ")
+    ONE_OR_MORE_LINEFEED: = guidance.one_or_more("\n")
+    ONE_OR_MORE_SPACE_OR_LINEFEED: = guidance.one_or_more(guidance.select([" ", "\n"]))
 ```
 
 

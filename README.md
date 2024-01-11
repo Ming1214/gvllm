@@ -106,21 +106,21 @@ case 支持类型：bool int float str list dict
 ```python
 class GuidanceSpliter(Enum):
     
-    NONE: = ""
-    SPACE: = " "
-    LINEFEED: = "\n"
+    NONE = ""
+    SPACE = " "
+    LINEFEED = "\n"
     
-    NONE_OR_SPACE: = guidance.select(["", " "])
-    NONE_OR_LINEFEED: = guidance.select(["", "\n"])
-    NONE_OR_SPACE_OR_LINEFEED: = guidance.select(["", " ", "\n"])
+    NONE_OR_SPACE = guidance.select(["", " "])
+    NONE_OR_LINEFEED = guidance.select(["", "\n"])
+    NONE_OR_SPACE_OR_LINEFEED = guidance.select(["", " ", "\n"])
     
-    ZERO_OR_MORE_SPACE: = guidance.zero_or_more(" ")
-    ZERO_OR_MORE_LINEFEED: = guidance.zero_or_more("\n")
-    ZERO_OR_MORE_SPACE_OR_LINEFEED: = guidance.zero_or_more(guidance.select([" ", "\n"]))
+    ZERO_OR_MORE_SPACE = guidance.zero_or_more(" ")
+    ZERO_OR_MORE_LINEFEED = guidance.zero_or_more("\n")
+    ZERO_OR_MORE_SPACE_OR_LINEFEED = guidance.zero_or_more(guidance.select([" ", "\n"]))
     
-    ONE_OR_MORE_SPACE: = guidance.one_or_more(" ")
-    ONE_OR_MORE_LINEFEED: = guidance.one_or_more("\n")
-    ONE_OR_MORE_SPACE_OR_LINEFEED: = guidance.one_or_more(guidance.select([" ", "\n"]))
+    ONE_OR_MORE_SPACE = guidance.one_or_more(" ")
+    ONE_OR_MORE_LINEFEED = guidance.one_or_more("\n")
+    ONE_OR_MORE_SPACE_OR_LINEFEED = guidance.one_or_more(guidance.select([" ", "\n"]))
 ```
 
 

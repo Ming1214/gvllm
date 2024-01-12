@@ -1,5 +1,12 @@
 # gvllm = guidance + vllm
 
+## 安装
+
+进入对应版本的 vllm 下面，运行：
+```sh
+pip install -e .
+```
+
 ## 修改要点
 
 1. sampling_params.py: 添加 guidance 控制相应字段

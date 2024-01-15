@@ -42,7 +42,7 @@ class ByteTokenizer:
                 token = bytes(token, encoding = "utf-8")
             assert isinstance(token, bytes)
             self.tokens.append(token)
-        self.trie = ByteTrie(self.tokens, np.arange(len(self.tokens)))
+        self.trie = ByteTrie(self.tokens, range(len(self.tokens)))
         assert tokenizer.eos_token_id is not None
         self.eos_token_id = tokenizer.eos_token_id
 

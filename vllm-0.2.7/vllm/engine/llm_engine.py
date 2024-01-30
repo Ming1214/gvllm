@@ -798,7 +798,7 @@ class LLMEngine:
         """Stop the finished sequences."""
         for stop_str in sampling_params.stop:
             if seq.output_text.endswith(stop_str):
-                if not False: #sampling_params.include_stop_str_in_output: # 目前的 SamplingParams 对象代码里面没有这个属性
+                if not sampling_params.include_stop_str_in_output:
                     # Truncate the output text so that the stop string is
                     # not included in the output.
                     seq.output_text = seq.output_text[:-len(stop_str)]

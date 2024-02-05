@@ -23,13 +23,13 @@ class GuidanceSpliter(Enum):
 
 def convert_json_case_to_grammar(case, SPLITER = ""):
     if isinstance(case, str):
-        return '"' + guidance.gen(stop = '"')
+        return guidance.select(["null", '"' + guidance.gen(stop = '"')])
     if isinstance(case, int):
-        return guidance.gen(regex = "[\-\+]?\d+")
+        return guidance.select(["null", guidance.gen(regex = "[\-\+]?\d+")])
     if isinstance(case, float):
-        return guidance.gen(regex = "[\-\+]?\d+(\.\d*)?")
+        return guidance.select(["null", guidance.gen(regex = "[\-\+]?\d+(\.\d*)?")])
     if isinstance(case, bool):
-        return guidance.select(["true", "false"])
+        return guidance.select(["null", guidance.select(["true", "false"])])
     if isinstance(case, list):
         grammar = convert_json_case_to_grammar(case[0], SPLITER)
         return "[" + SPLITER + grammar + guidance.zero_or_more("," + SPLITER + grammar) + SPLITER + "]"
@@ -68,23 +68,30 @@ def convert_json_schema_to_grammar(schema, definitions = None, SPLITER = "", tem
     temperature = schema.get("temperature", temperature)
     
     if type == "boolean":
-        return guidance.select(["true", "false"])
+        grammar = guidance.select(["true", "false"])
+        return guidance.select(["null", grammar])
         
     elif type == "integer":
-        return guidance.gen(regex = "[\-\+]?\d+", temperature = temperature)
+        grammar = guidance.gen(regex = "[\-\+]?\d+", temperature = temperature)
+        return guidance.select(["null", grammar])
         
     elif type == "number":
-        return guidance.gen(regex = "[\-\+]?\d+(\.\d*)?", temperature = temperature)
+        grammar = guidance.gen(regex = "[\-\+]?\d+(\.\d*)?", temperature = temperature)
+        return guidance.select(["null", grammar])
         
     elif type == "string": # 支持正则表达式(constr)
         if "pattern" in schema:
-            return '"' + guidance.gen(regex = schema["pattern"], stop = '"', temperature = temperature)
-        return '"' + guidance.gen(stop = '"', temperature = temperature)
+            grammar = '"' + guidance.gen(regex = schema["pattern"], stop = '"', temperature = temperature)
+        else:
+            grammar = '"' + guidance.gen(stop = '"', temperature = temperature)
+        return guidance.select(["null", grammar])
         
     elif type == "enumeration":
         if type_enum == "string":
-            return '"' + guidance.select([x.strip("'\"") for x in schema["enum"]]) + '"'
-        return guidance.select(schema["enum"])
+            grammar = '"' + guidance.select([x.strip("'\"") for x in schema["enum"]]) + '"'
+        else:
+            grammar = guidance.select(schema["enum"])
+        return guidance.select(["null", grammar])
         
     elif type == "array": # 支持设定数目限制(conlist)
         min_items = max(schema.get("min_items", 0), 0)

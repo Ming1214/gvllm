@@ -20,7 +20,7 @@ pip install -e .
 5. 添加 guidance_patches 包，并修改 \_\_init\_\_.py 
 
 
-## 使用 Guidance，只需要在提交请求时增加如下字段（优先级从高到低，选择其中一个即可）：
+## 使用 Guidance，只需要在 SamplingParams 中增加如下字段（优先级从高到低，选择其中一个即可）：
 
 
 ### guidance_json_schema: 以 json schema 为输出模板

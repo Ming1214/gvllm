@@ -22,6 +22,9 @@ pip install -e .
 
 ## 使用 Guidance，只需要在 SamplingParams 中增加如下字段（优先级从高到低，选择其中一个即可）：
 
+### guidance_grammar: 以 guidance 语法为输出模板
+
+详细参见：[https://github.com/guidance-ai/guidance]
 
 ### guidance_json_schema: 以 json schema 为输出模板
 

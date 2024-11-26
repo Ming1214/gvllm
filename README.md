@@ -134,7 +134,7 @@ class GuidanceSpliter(Enum):
     ONE_OR_MORE_SPACE_OR_LINEFEED = guidance.one_or_more(guidance.select([" ", "\n"]))
 ```
 
-### 3.5 guidance_forbidden_tokens/guidance_forbidden_token_ids:
+### 3.5 guidance_forbidden_tokens/guidance_forbidden_token_ids
 
 禁止相应 token 的输出
 
